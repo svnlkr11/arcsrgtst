@@ -30,7 +30,8 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     color:var(--ink);
     -webkit-font-smoothing:antialiased;
-    padding-bottom:96px;
+    /* Sayfanın en altındaki buton ve footer rahat görünsün diye */
+    padding-bottom: 20px; 
   }
 
   header{
@@ -84,6 +85,12 @@
     font-weight:500;
     margin-top:2px;
   }
+  .developer-note {
+    font-size:11px;
+    color:rgba(255,255,255,0.55);
+    margin-top:4px;
+    font-style:italic;
+  }
   h1{
     margin:0;
     font-size:23px;
@@ -126,7 +133,59 @@
     padding:14px 14px 4px;
     max-width:640px;
     margin:0 auto;
+    min-height: 50vh; /* Sayfa boşken footer hemen yukarı yapışmasın diye */
   }
+          /* Footer Styles */
+        .footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 15px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .footer p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+            color: #fefee3;
+        }
+        
+        .developer-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            position: relative;
+        }
+        
+        .developer-info img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+            z-index: 0;
+        }
+
+        .developer-info img:hover {
+            transform: scale(2.5);
+            z-index: 1;
+        }
 
   .empty{
     text-align:center;
@@ -341,6 +400,39 @@
     color: var(--ink-soft);
     font-weight: 600;
   }
+
+  /* FOOTER TASARIMI */
+  .footer {
+    text-align: center;
+    padding: 24px 16px 90px; /* Alttan 90px boşluk "+" butonu ile çakışmayı engeller */
+    color: var(--ink-soft);
+    font-size: 13px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .footer p { margin: 6px 0; }
+  .developer-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+  }
+  .developer-info img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .developer-info p { margin: 0; }
+  .developer-info a {
+    color: var(--navy);
+    text-decoration: none;
+    font-weight: 700;
+  }
 </style>
 </head>
 <body>
@@ -351,6 +443,7 @@
     <div class="header-text">
       <h1>Kavak Belediyesi</h1>
       <div class="subtitle">Araç Sorgu Sistemi</div>
+      <div class="developer-note">Bekir tarafından oluşturulmuştur</div>
     </div>
     <div class="header-actions">
       <button class="icon-btn" id="downloadBtn" aria-label="İndir">
@@ -373,6 +466,16 @@
 </header>
 
 <main id="list"></main>
+
+<!-- YENİ EKLENEN FOOTER KISMI -->
+<div class="footer">
+    <p>Kavak Belediyesi © 2026 - Tüm hakları saklıdır</p>       
+    <p>Bu proje Bekir Sevinç tarafından Kavak Belediyesi için oluşturulmuştur</p>
+    <div class="developer-info">
+        <img src="https://media.licdn.com/dms/image/v2/C4E03AQHdzqgRxkvNVg/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1622985615270?e=2147483647&v=beta&t=9yMZ8IjBurammfEvnr1jJT7tuyeHS3t2A7LTxPERSvs" alt="Developer">
+        <p>Geliştirici: <a href="https://www.instagram.com/bekirsevnc" target="_blank">@bekirsevnc</a></p>
+    </div>
+</div>
 
 <button class="fab" id="openAdd" aria-label="Yeni kayıt ekle">
   <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -411,7 +514,7 @@ let editingId = null;
 
 // Sayfalama değişkenleri
 let currentPage = 1;
-const ITEMS_PER_PAGE = 10; // Sayfa başına gösterilecek kayıt sayısı
+const ITEMS_PER_PAGE = 20; 
 
 const listEl = document.getElementById('list');
 const countPill = document.getElementById('countPill');
