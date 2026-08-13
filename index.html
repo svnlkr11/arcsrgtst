@@ -135,57 +135,6 @@
     margin:0 auto;
     min-height: 50vh; /* Sayfa boşken footer hemen yukarı yapışmasın diye */
   }
-          /* Footer Styles */
-        .footer {
-            background-color: var(--dark);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 0 0 15px 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .footer p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        .footer a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .footer a:hover {
-            text-decoration: underline;
-            color: #fefee3;
-        }
-        
-        .developer-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-            position: relative;
-        }
-        
-        .developer-info img {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-            z-index: 0;
-        }
-
-        .developer-info img:hover {
-            transform: scale(2.5);
-            z-index: 1;
-        }
 
   .empty{
     text-align:center;
@@ -443,7 +392,7 @@
     <div class="header-text">
       <h1>Kavak Belediyesi</h1>
       <div class="subtitle">Araç Sorgu Sistemi</div>
-      <div class="developer-note">Bekir tarafından oluşturulmuştur</div>
+      <div class="developer-note">Bekir Sevnc tarafından oluşturulmuştur</div>
     </div>
     <div class="header-actions">
       <button class="icon-btn" id="downloadBtn" aria-label="İndir">
@@ -470,11 +419,7 @@
 <!-- YENİ EKLENEN FOOTER KISMI -->
 <div class="footer">
     <p>Kavak Belediyesi © 2026 - Tüm hakları saklıdır</p>       
-    <p>Bu proje Bekir Sevinç tarafından Kavak Belediyesi için oluşturulmuştur</p>
-    <div class="developer-info">
-        <img src="https://media.licdn.com/dms/image/v2/C4E03AQHdzqgRxkvNVg/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1622985615270?e=2147483647&v=beta&t=9yMZ8IjBurammfEvnr1jJT7tuyeHS3t2A7LTxPERSvs" alt="Developer">
-        <p>Geliştirici: <a href="https://www.instagram.com/bekirsevnc" target="_blank">@bekirsevnc</a></p>
-    </div>
+    <p>Bu proje Bekir Sevnc tarafından Kavak Belediyesi için oluşturulmuştur</p>
 </div>
 
 <button class="fab" id="openAdd" aria-label="Yeni kayıt ekle">
