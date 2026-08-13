@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Kavak Belediyesi Plaka Kayıt</title>
-<!-- Sekme ve Ana Ekran İkonları -->
+<title>Kavak Belediyesi Araç Sorgu Sistemi</title>
+
 <link rel="icon" type="image/png" href="res/kavak-logo.png">
+<!-- Apple cihazlar için (opsiyonel ama önerilir) -->
 <link rel="apple-touch-icon" href="res/kavak-logo.png">
+
 <style>
   :root{
     --navy:#16324a;
@@ -401,11 +403,11 @@ function splitPlate(p){
 function formatPlateDisplay(p){
   p = (p||'').trim().toUpperCase();
   if(!p) return '—';
-  // boşluk/tire olmadan girilmiş olsa bile il-harf-sayı gruplarına ayırıp standart boşlukla yaz
+  // boşluk/tire olmadan girilmiş olsa bile il-harf-say\u0131 gruplar\u0131na ay\u0131r\u0131p standart bo\u015flukla yaz
   const cleaned = p.replace(/[\s-]+/g, '');
   const m = cleaned.match(/^(\d{1,2})([A-ZÇĞİÖŞÜ]{1,3})(\d{2,4})$/);
   if(m) return `${m[1]} ${m[2]} ${m[3]}`;
-  return p; // beklenen kalıba uymuyorsa olduğu gibi göster
+  return p; // beklenen kal\u0131ba uymuyorsa oldu\u011fu gibi g\u00f6ster
 }
 
 // --- IndexedDB katmanı: gerçek tarayıcı deposu, sekme/geçmiş temizlemekle silinmez ---
@@ -658,6 +660,9 @@ async function shareCSV(){
     downloadCSV();
   }
 }
+
+document.getElementById('downloadBtn').addEventListener('click', downloadCSV);
+document.getElementById('shareBtn').addEventListener('click', shareCSV);
 
 // --- Yedekten geri yükleme (indirilmiş CSV'den) ---
 function parseCSV(text){
