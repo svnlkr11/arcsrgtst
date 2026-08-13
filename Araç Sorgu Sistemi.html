@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Kavak Belediyesi Plaka Kayıt</title>
+<style>
+  :root{
+    --navy:#16324a;
+    --navy-deep:#0e2233;
+    --amber:#e8a33d;
+    --amber-deep:#c8842a;
+    --cream:#f6f4ef;
+    --card:#ffffff;
+    --ink:#22282e;
+    --ink-soft:#5a6570;
+    --line:#e4e0d6;
+    --danger:#b3432f;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--cream);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:96px;
+  }
+
+  header{
+    background:linear-gradient(180deg,var(--navy) 0%,var(--navy-deep) 100%);
+    color:#fff;
+    padding:22px 18px 18px;
+    position:sticky;
+    top:0;
+    z-index:20;
+    box-shadow:0 4px 14px rgba(14,34,51,0.25);
+  }
+  .header-top{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .header-top img{
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    object-fit:cover;
+    flex:0 0 auto;
+    background:#fff;
+    border:2px solid #fff;
+    box-shadow:0 2px 6px rgba(0,0,0,0.25);
+  }
+  .header-text{min-width:0;flex:1 1 auto;}
+  .header-actions{
+    margin-left:auto;
+    display:flex;
+    gap:6px;
+    flex:0 0 auto;
+  }
+  .icon-btn{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.14);
+    border:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+  }
+  .icon-btn:active{background:rgba(255,255,255,0.28);}
+  .icon-btn svg{width:18px;height:18px;stroke:#fff;}
+  .subtitle{
+    font-size:12.5px;
+    color:rgba(255,255,255,0.72);
+    font-weight:500;
+    margin-top:2px;
+  }
+  h1{
+    margin:0;
+    font-size:23px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+  }
+  .search-wrap{
+    position:relative;
+  }
+  .search-wrap input{
+    width:100%;
+    padding:13px 14px 13px 40px;
+    border-radius:12px;
+    border:none;
+    font-size:16px;
+    background:#fff;
+    color:var(--ink);
+    outline:none;
+  }
+  .search-wrap input:focus{
+    box-shadow:0 0 0 3px rgba(232,163,61,0.5);
+  }
+  .search-wrap svg{
+    position:absolute;
+    left:13px;
+    top:50%;
+    transform:translateY(-50%);
+    width:18px;
+    height:18px;
+    stroke:var(--ink-soft);
+  }
+  .count-pill{
+    display:inline-block;
+    margin-top:10px;
+    font-size:12px;
+    color:rgba(255,255,255,0.72);
+  }
+
+  main{
+    padding:14px 14px 4px;
+    max-width:640px;
+    margin:0 auto;
+  }
+
+  .empty{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--ink-soft);
+  }
+  .empty svg{width:40px;height:40px;stroke:var(--ink-soft);opacity:.5;margin-bottom:10px;}
+  .empty p{margin:4px 0;font-size:14px;}
+  .empty .hint{font-size:12.5px;opacity:.75;}
+
+  .record{
+    background:var(--card);
+    border-radius:var(--radius);
+    border:1px solid var(--line);
+    padding:14px 14px 12px;
+    margin-bottom:10px;
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+  }
+  .plate{
+    flex:0 0 auto;
+    display:flex;
+    border-radius:6px;
+    overflow:hidden;
+    border:1.5px solid #1c2a33;
+    font-family:"Arial Narrow",Arial,sans-serif;
+    font-weight:700;
+    min-width:78px;
+  }
+  .plate .flag{
+    background:var(--navy);
+    color:#fff;
+    font-size:8px;
+    width:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    letter-spacing:0;
+  }
+  .plate .num{
+    background:#fff;
+    color:#111;
+    font-size:14px;
+    padding:6px 9px;
+    letter-spacing:1px;
+    white-space:nowrap;
+  }
+  .info{flex:1 1 auto;min-width:0;}
+  .info .name{
+    font-size:15.5px;
+    font-weight:600;
+    margin:0 0 2px;
+    color:var(--ink);
+  }
+  .info a.phone{
+    font-size:13.5px;
+    color:var(--navy);
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-weight:600;
+  }
+  .info a.phone svg{width:13px;height:13px;stroke:var(--navy);}
+  .actions{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    flex:0 0 auto;
+  }
+  .actions button{
+    border:none;
+    background:transparent;
+    padding:6px;
+    cursor:pointer;
+    color:var(--ink-soft);
+    border-radius:8px;
+  }
+  .actions button:active{background:var(--line);}
+  .actions svg{width:17px;height:17px;stroke:currentColor;display:block;}
+  .actions .del svg{stroke:var(--danger);}
+
+  .fab{
+    position:fixed;
+    right:18px;
+    bottom:22px;
+    width:58px;
+    height:58px;
+    border-radius:50%;
+    background:var(--amber);
+    color:var(--navy-deep);
+    border:none;
+    box-shadow:0 6px 18px rgba(200,132,42,0.45);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    z-index:30;
+  }
+  .fab svg{width:26px;height:26px;stroke:var(--navy-deep);stroke-width:2.4;}
+  .fab:active{transform:scale(0.94);}
+
+  .sheet-backdrop{
+    position:fixed;inset:0;
+    background:rgba(14,26,36,0.45);
+    z-index:40;
+    display:none;
+  }
+  .sheet-backdrop.open{display:block;}
+  .sheet{
+    position:fixed;
+    left:0;right:0;bottom:0;
+    background:var(--cream);
+    border-radius:20px 20px 0 0;
+    padding:18px 18px calc(18px + env(safe-area-inset-bottom));
+    z-index:41;
+    transform:translateY(100%);
+    transition:transform .25s ease;
+    max-width:640px;
+    margin:0 auto;
+  }
+  .sheet.open{transform:translateY(0);}
+  .sheet h2{
+    margin:2px 0 16px;
+    font-size:16px;
+    color:var(--navy-deep);
+  }
+  .field{margin-bottom:12px;}
+  .field label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    margin-bottom:5px;
+  }
+  .field input{
+    width:100%;
+    padding:12px 13px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    font-size:16px;
+    background:#fff;
+    outline:none;
+  }
+  .field input:focus{border-color:var(--navy);}
+  .sheet-actions{
+    display:flex;
+    gap:10px;
+    margin-top:6px;
+  }
+  .btn{
+    flex:1;
+    padding:13px;
+    border-radius:12px;
+    border:none;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .btn.primary{background:var(--navy);color:#fff;}
+  .btn.ghost{background:transparent;color:var(--ink-soft);border:1.5px solid var(--line);}
+
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:96px;
+    transform:translateX(-50%) translateY(10px);
+    background:var(--navy-deep);
+    color:#fff;
+    padding:10px 16px;
+    border-radius:10px;
+    font-size:13px;
+    opacity:0;
+    pointer-events:none;
+    transition:all .25s ease;
+    z-index:50;
+    white-space:nowrap;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <img src="res/kavak-logo.png" alt="Kavak Belediyesi logosu">
+    <div class="header-text">
+      <h1>Kavak Belediyesi</h1>
+      <div class="subtitle">Araç Sorgu Sistemi</div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="downloadBtn" aria-label="İndir">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+      <button class="icon-btn" id="shareBtn" aria-label="Paylaş">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      </button>
+      <button class="icon-btn" id="restoreBtn" aria-label="Geri Yükle">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.64-6.36"/><polyline points="3 3 3 8 8 8"/></svg>
+      </button>
+      <input type="file" id="restoreInput" accept=".csv,text/csv" style="display:none">
+    </div>
+  </div>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input id="search" type="text" placeholder="Plaka, ad soyad veya telefon ara..." autocomplete="off">
+  </div>
+  <div class="count-pill" id="countPill">Yükleniyor...</div>
+</header>
+
+<main id="list"></main>
+
+<button class="fab" id="openAdd" aria-label="Yeni kayıt ekle">
+  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+<div class="sheet-backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet">
+  <h2 id="sheetTitle">Yeni Kayıt</h2>
+  <div class="field">
+    <label>Plaka</label>
+    <input id="fPlaka" type="text" placeholder="50 AB 123" autocapitalize="characters">
+  </div>
+  <div class="field">
+    <label>Ad Soyad</label>
+    <input id="fAd" type="text" placeholder="Ad Soyad">
+  </div>
+  <div class="field">
+    <label>Telefon</label>
+    <input id="fTel" type="tel" placeholder="05xx xxx xx xx">
+  </div>
+  <div class="sheet-actions">
+    <button class="btn ghost" id="cancelBtn">Vazgeç</button>
+    <button class="btn primary" id="saveBtn">Kaydet</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DB_NAME = 'zabitaAracDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'kayitlar';
+let db = null;
+let records = [];
+let editingId = null;
+
+const listEl = document.getElementById('list');
+const countPill = document.getElementById('countPill');
+const searchEl = document.getElementById('search');
+const sheet = document.getElementById('sheet');
+const backdrop = document.getElementById('backdrop');
+const toastEl = document.getElementById('toast');
+
+function showToast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(()=>toastEl.classList.remove('show'), 1800);
+}
+
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function splitPlate(p){
+  p = (p||'').trim();
+  const m = p.match(/^(\d{1,2})/);
+  return { il: m ? m[1] : '', rest: p };
+}
+
+function formatPlateDisplay(p){
+  p = (p||'').trim().toUpperCase();
+  if(!p) return '—';
+  // boşluk/tire olmadan girilmiş olsa bile il-harf-say\u0131 gruplar\u0131na ay\u0131r\u0131p standart bo\u015flukla yaz
+  const cleaned = p.replace(/[\s-]+/g, '');
+  const m = cleaned.match(/^(\d{1,2})([A-ZÇĞİÖŞÜ]{1,3})(\d{2,4})$/);
+  if(m) return `${m[1]} ${m[2]} ${m[3]}`;
+  return p; // beklenen kal\u0131ba uymuyorsa oldu\u011fu gibi g\u00f6ster
+}
+
+// --- IndexedDB katmanı: gerçek tarayıcı deposu, sekme/geçmiş temizlemekle silinmez ---
+function openDB(){
+  return new Promise((resolve, reject)=>{
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e)=>{
+      const database = e.target.result;
+      if(!database.objectStoreNames.contains(STORE_NAME)){
+        database.createObjectStore(STORE_NAME, { keyPath: 'id' });
+      }
+    };
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+
+function dbGetAll(){
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    const req = store.getAll();
+    req.onsuccess = ()=> resolve(req.result || []);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+
+function dbPut(record){
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).put(record);
+    tx.oncomplete = ()=> resolve();
+    tx.onerror = ()=> reject(tx.error);
+  });
+}
+
+function dbDelete(id){
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).delete(id);
+    tx.oncomplete = ()=> resolve();
+    tx.onerror = ()=> reject(tx.error);
+  });
+}
+
+async function loadRecords(){
+  try{
+    if(!db) db = await openDB();
+    records = await dbGetAll();
+  }catch(e){
+    records = [];
+    showToast('Depolama açılamadı — cihaz/tarayıcı desteklemiyor olabilir');
+  }
+  render();
+}
+
+function render(){
+  const q = searchEl.value.trim().toLocaleLowerCase('tr-TR');
+  const filtered = !q ? records : records.filter(r=>{
+    return (r.plaka||'').toLocaleLowerCase('tr-TR').includes(q)
+        || (r.ad||'').toLocaleLowerCase('tr-TR').includes(q)
+        || (r.tel||'').replace(/\s/g,'').includes(q.replace(/\s/g,''));
+  });
+
+  countPill.textContent = records.length === 0
+    ? 'Henüz kayıt yok'
+    : `${filtered.length} / ${records.length} kayıt`;
+
+  if(filtered.length === 0){
+    listEl.innerHTML = `
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <p>${records.length === 0 ? 'Kayıt bulunamadı' : 'Sonuç bulunamadı'}</p>
+        <p class="hint">${records.length === 0 ? 'Sağ alttaki + ile ilk kaydı ekleyin' : 'Farklı bir arama deneyin'}</p>
+      </div>`;
+    return;
+  }
+
+  listEl.innerHTML = filtered
+    .slice()
+    .sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0))
+    .map(r => {
+      const plate = splitPlate(r.plaka);
+      return `
+      <div class="record" data-id="${r.id}">
+        <div class="plate">
+          <div class="flag">TR</div>
+          <div class="num">${escapeHtml(formatPlateDisplay(r.plaka))}</div>
+        </div>
+        <div class="info">
+          <p class="name">${escapeHtml(r.ad || 'İsimsiz')}</p>
+          ${r.tel ? `<a class="phone" href="tel:${escapeHtml(r.tel.replace(/\s/g,''))}">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            ${escapeHtml(r.tel)}
+          </a>` : ''}
+        </div>
+        <div class="actions">
+          <button class="edit" data-id="${r.id}" aria-label="Düzenle">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </button>
+          <button class="del" data-id="${r.id}" aria-label="Sil">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+}
+
+function openSheet(record){
+  editingId = record ? record.id : null;
+  document.getElementById('sheetTitle').textContent = record ? 'Kaydı Düzenle' : 'Yeni Kayıt';
+  document.getElementById('fPlaka').value = record ? record.plaka : '';
+  document.getElementById('fAd').value = record ? record.ad : '';
+  document.getElementById('fTel').value = record ? record.tel : '';
+  backdrop.classList.add('open');
+  sheet.classList.add('open');
+  setTimeout(()=>document.getElementById('fPlaka').focus(), 200);
+}
+
+function closeSheet(){
+  backdrop.classList.remove('open');
+  sheet.classList.remove('open');
+  editingId = null;
+}
+
+document.getElementById('openAdd').addEventListener('click', ()=>openSheet(null));
+document.getElementById('cancelBtn').addEventListener('click', closeSheet);
+backdrop.addEventListener('click', closeSheet);
+
+document.getElementById('saveBtn').addEventListener('click', async ()=>{
+  const plaka = document.getElementById('fPlaka').value.trim().toUpperCase();
+  const ad = document.getElementById('fAd').value.trim();
+  const tel = document.getElementById('fTel').value.trim();
+
+  if(!plaka && !ad && !tel){
+    showToast('En az bir alan doldurun');
+    return;
+  }
+
+  let record;
+  if(editingId){
+    const idx = records.findIndex(r=>r.id === editingId);
+    record = { ...records[idx], plaka, ad, tel, updatedAt: Date.now() };
+  }else{
+    record = {
+      id: 'k' + Date.now() + Math.random().toString(36).slice(2,7),
+      plaka, ad, tel,
+      updatedAt: Date.now()
+    };
+  }
+
+  try{
+    await dbPut(record);
+    await loadRecords();
+    closeSheet();
+    showToast('Kayıt kaydedildi');
+  }catch(e){
+    showToast('Kayıt sırasında bir sorun oluştu');
+  }
+});
+
+listEl.addEventListener('click', (e)=>{
+  const editBtn = e.target.closest('.edit');
+  const delBtn = e.target.closest('.del');
+  if(editBtn){
+    const rec = records.find(r=>r.id === editBtn.dataset.id);
+    if(rec) openSheet(rec);
+  }
+  if(delBtn){
+    const rec = records.find(r=>r.id === delBtn.dataset.id);
+    if(rec && confirm(`"${rec.ad || rec.plaka || 'Bu kayıt'}" silinsin mi?`)){
+      dbDelete(rec.id).then(loadRecords).then(()=>{
+        showToast('Kayıt silindi');
+      }).catch(()=>{
+        showToast('Silme sırasında bir sorun oluştu');
+      });
+    }
+  }
+});
+
+searchEl.addEventListener('input', render);
+
+// --- CSV oluşturma / indirme / paylaşma ---
+function csvEscape(v){
+  v = String(v == null ? '' : v);
+  if(/[";\n]/.test(v)) return '"' + v.replace(/"/g,'""') + '"';
+  return v;
+}
+
+function buildCSV(){
+  const rows = [['Plaka','Ad Soyad','Telefon']];
+  records
+    .slice()
+    .sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0))
+    .forEach(r => rows.push([r.plaka||'', r.ad||'', r.tel||'']));
+  const body = rows.map(row => row.map(csvEscape).join(';')).join('\r\n');
+  return '\uFEFF' + body; // BOM: Excel'de Türkçe karakterleri doğru gösterir
+}
+
+function csvFileName(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return `arac-kayitlari-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}.csv`;
+}
+
+function downloadCSV(){
+  if(records.length === 0){
+    showToast('İndirilecek kayıt yok');
+    return;
+  }
+  const blob = new Blob([buildCSV()], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = csvFileName();
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  showToast('Dosya indirildi');
+}
+
+async function shareCSV(){
+  if(records.length === 0){
+    showToast('Paylaşılacak kayıt yok');
+    return;
+  }
+  const blob = new Blob([buildCSV()], { type: 'text/csv;charset=utf-8;' });
+  const file = new File([blob], csvFileName(), { type: 'text/csv' });
+
+  if(navigator.canShare && navigator.canShare({ files: [file] })){
+    try{
+      await navigator.share({
+        files: [file],
+        title: 'Kavak Belediyesi Plaka Kayıt',
+        text: `${records.length} kayıt — Kavak Belediyesi Plaka Kayıt`
+      });
+    }catch(e){
+      // kullanıcı paylaşımı iptal etti — sessiz geç
+    }
+  }else if(navigator.share){
+    try{
+      await navigator.share({
+        title: 'Kavak Belediyesi Plaka Kayıt',
+        text: `${records.length} kayıt — dosya paylaşımı bu cihazda desteklenmiyor, lütfen indirip gönderin.`
+      });
+    }catch(e){}
+  }else{
+    showToast('Bu tarayıcı paylaşımı desteklemiyor, dosya indiriliyor');
+    downloadCSV();
+  }
+}
+
+document.getElementById('downloadBtn').addEventListener('click', downloadCSV);
+document.getElementById('shareBtn').addEventListener('click', shareCSV);
+
+// --- Yedekten geri yükleme (indirilmiş CSV'den) ---
+function parseCSV(text){
+  if(text.charCodeAt(0) === 0xFEFF) text = text.slice(1); // BOM temizle
+  const lines = text.split(/\r\n|\n/).filter(l => l.length > 0);
+  return lines.map(line => {
+    const row = [];
+    let cur = '';
+    let inQuotes = false;
+    for(let i = 0; i < line.length; i++){
+      const c = line[i];
+      if(inQuotes){
+        if(c === '"'){
+          if(line[i+1] === '"'){ cur += '"'; i++; }
+          else inQuotes = false;
+        } else cur += c;
+      } else {
+        if(c === '"') inQuotes = true;
+        else if(c === ';'){ row.push(cur); cur = ''; }
+        else cur += c;
+      }
+    }
+    row.push(cur);
+    return row;
+  });
+}
+
+function dedupeKey(plaka, tel){
+  return (plaka||'').trim().toLocaleLowerCase('tr-TR') + '|' + (tel||'').replace(/\s/g,'');
+}
+
+async function handleRestoreFile(e){
+  const file = e.target.files[0];
+  e.target.value = ''; // aynı dosya tekrar seçilebilsin diye sıfırla
+  if(!file) return;
+
+  try{
+    const text = await file.text();
+    const rows = parseCSV(text);
+    if(rows.length <= 1){
+      showToast('Dosyada kayıt bulunamadı');
+      return;
+    }
+
+    const existingKeys = new Set(records.map(r => dedupeKey(r.plaka, r.tel)));
+    let added = 0;
+
+    for(let i = 1; i < rows.length; i++){ // ilk satır başlık, atla
+      const [plaka, ad, tel] = rows[i];
+      if(!plaka && !ad && !tel) continue;
+      const key = dedupeKey(plaka, tel);
+      if(existingKeys.has(key)) continue; // zaten var, tekrar ekleme
+      existingKeys.add(key);
+      await dbPut({
+        id: 'k' + Date.now() + Math.random().toString(36).slice(2,7) + added,
+        plaka: (plaka||'').trim(),
+        ad: (ad||'').trim(),
+        tel: (tel||'').trim(),
+        updatedAt: Date.now()
+      });
+      added++;
+    }
+
+    await loadRecords();
+    showToast(added > 0 ? `${added} kayıt geri yüklendi` : 'Yeni kayıt yok, hepsi zaten mevcut');
+  }catch(err){
+    showToast('Dosya okunamadı, formatı kontrol edin');
+  }
+}
+
+document.getElementById('restoreBtn').addEventListener('click', ()=>{
+  document.getElementById('restoreInput').click();
+});
+document.getElementById('restoreInput').addEventListener('change', handleRestoreFile);
+
+loadRecords();
+</script>
+
+</body>
+</html>
