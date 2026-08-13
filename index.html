@@ -30,7 +30,6 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     color:var(--ink);
     -webkit-font-smoothing:antialiased;
-    /* Sayfanın en altındaki buton ve footer rahat görünsün diye */
     padding-bottom: 20px; 
   }
 
@@ -133,7 +132,7 @@
     padding:14px 14px 4px;
     max-width:640px;
     margin:0 auto;
-    min-height: 50vh; /* Sayfa boşken footer hemen yukarı yapışmasın diye */
+    min-height: 50vh; 
   }
 
   .empty{
@@ -164,6 +163,7 @@
     font-family:"Arial Narrow",Arial,sans-serif;
     font-weight:700;
     min-width:78px;
+    margin-top: 2px;
   }
   .plate .flag{
     background:var(--navy);
@@ -184,12 +184,45 @@
     white-space:nowrap;
   }
   .info{flex:1 1 auto;min-width:0;}
+  
+  .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease, filter 0.15s ease;
+  }
+  .badge:active { transform: scale(0.92); filter: brightness(0.9); }
+  .badge.gri { background: var(--line); color: var(--ink-soft); } 
+  .badge.yesil { background: #e6f4ea; color: #1e8e3e; }
+  .badge.sari { background: #fef7e0; color: #f9ab00; }
+  .badge.kirmizi { background: #fce8e6; color: #d93025; }
+
   .info .name{
     font-size:15.5px;
     font-weight:600;
-    margin:0 0 2px;
+    margin:0 0 4px;
     color:var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
+  .alarm-icon {
+    font-size: 14px;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
   .info a.phone{
     font-size:13.5px;
     color:var(--navy);
@@ -200,6 +233,50 @@
     font-weight:600;
   }
   .info a.phone svg{width:13px;height:13px;stroke:var(--navy);}
+  
+  .note-text {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin: 6px 0 0 0;
+    font-style: italic;
+    line-height: 1.4;
+  }
+  .timestamp {
+    font-size: 10px;
+    color: #9aa0a6;
+    margin-top: 6px;
+  }
+
+  .msg-btns {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .wa-btn, .sms-btn, .alarm-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: transform 0.2s, background 0.2s;
+    flex: 0 0 auto;
+    cursor: pointer;
+  }
+  .wa-btn { background: #25D366; color: #fff; }
+  .wa-btn:active { transform: scale(0.92); background: #1da851; }
+  .wa-btn svg { width: 15px; height: 15px; }
+  
+  .sms-btn { background: #007AFF; color: #fff; }
+  .sms-btn:active { transform: scale(0.92); background: #005bb5; }
+  .sms-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .alarm-btn { background: #9c27b0; color: #fff; }
+  .alarm-btn:active { transform: scale(0.92); background: #7b1fa2; }
+  .alarm-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
   .actions{
     display:flex;
     flex-direction:column;
@@ -273,7 +350,7 @@
     letter-spacing:.06em;
     margin-bottom:5px;
   }
-  .field input{
+  .field input, .field select{
     width:100%;
     padding:12px 13px;
     border-radius:10px;
@@ -281,8 +358,9 @@
     font-size:16px;
     background:#fff;
     outline:none;
+    color:var(--ink);
   }
-  .field input:focus{border-color:var(--navy);}
+  .field input:focus, .field select:focus{border-color:var(--navy);}
   .sheet-actions{
     display:flex;
     gap:10px;
@@ -318,7 +396,6 @@
   }
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-  /* SAYFALAMA TASARIMI */
   .pagination {
     display: flex;
     justify-content: center;
@@ -339,49 +416,18 @@
     transition: background 0.2s;
   }
   .page-btn:active { background: var(--line); }
-  .page-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background: transparent;
-  }
-  .page-info {
-    font-size: 13.5px;
-    color: var(--ink-soft);
-    font-weight: 600;
-  }
+  .page-btn:disabled { opacity: 0.5; cursor: not-allowed; background: transparent; }
+  .page-info { font-size: 13.5px; color: var(--ink-soft); font-weight: 600; }
 
-  /* FOOTER TASARIMI */
   .footer {
     text-align: center;
-    padding: 24px 16px 90px; /* Alttan 90px boşluk "+" butonu ile çakışmayı engeller */
+    padding: 24px 16px 90px;
     color: var(--ink-soft);
     font-size: 13px;
     max-width: 640px;
     margin: 0 auto;
   }
   .footer p { margin: 6px 0; }
-  .developer-info {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid rgba(0,0,0,0.05);
-  }
-  .developer-info img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
-  .developer-info p { margin: 0; }
-  .developer-info a {
-    color: var(--navy);
-    text-decoration: none;
-    font-weight: 700;
-  }
 </style>
 </head>
 <body>
@@ -416,7 +462,6 @@
 
 <main id="list"></main>
 
-<!-- YENİ EKLENEN FOOTER KISMI -->
 <div class="footer">
     <p>Kavak Belediyesi © 2026 - Tüm hakları saklıdır</p>       
     <p>Bu proje Bekir Sevnc tarafından Kavak Belediyesi için oluşturulmuştur</p>
@@ -441,6 +486,19 @@
     <label>Telefon</label>
     <input id="fTel" type="tel" placeholder="05xx xxx xx xx">
   </div>
+  <div class="field">
+    <label>Uyarı Durumu</label>
+    <select id="fEtiket">
+      <option value="">Seçilmedi (Gri)</option>
+      <option value="yesil">Az Uyarılan (Yeşil)</option>
+      <option value="sari">Sık Uyarılan (Sarı)</option>
+      <option value="kirmizi">Sürekli Hatalı Park (Kırmızı)</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Açıklama / Not</label>
+    <input id="fNot" type="text" placeholder="Örn: Sürekli sokağa park ediyor">
+  </div>
   <div class="sheet-actions">
     <button class="btn ghost" id="cancelBtn">Vazgeç</button>
     <button class="btn primary" id="saveBtn">Kaydet</button>
@@ -457,9 +515,11 @@ let db = null;
 let records = [];
 let editingId = null;
 
-// Sayfalama değişkenleri
+// ALARM LİSTESİ (Sistem belleğinde tutulur)
+let activeAlarms = {}; 
+
 let currentPage = 1;
-const ITEMS_PER_PAGE = 20; 
+const ITEMS_PER_PAGE = 10; 
 
 const listEl = document.getElementById('list');
 const countPill = document.getElementById('countPill');
@@ -478,12 +538,6 @@ function escapeHtml(s){
   return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-function splitPlate(p){
-  p = (p||'').trim();
-  const m = p.match(/^(\d{1,2})/);
-  return { il: m ? m[1] : '', rest: p };
-}
-
 function formatPlateDisplay(p){
   p = (p||'').trim().toUpperCase();
   if(!p) return '—';
@@ -493,7 +547,12 @@ function formatPlateDisplay(p){
   return p; 
 }
 
-// --- IndexedDB katmanı ---
+function formatDate(ts) {
+  if(!ts) return '';
+  const d = new Date(ts);
+  return d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+}
+
 function openDB(){
   return new Promise((resolve, reject)=>{
     const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -542,7 +601,7 @@ async function loadRecords(){
     records = await dbGetAll();
   }catch(e){
     records = [];
-    showToast('Depolama açılamadı — cihaz/tarayıcı desteklemiyor olabilir');
+    showToast('Depolama açılamadı');
   }
   render();
 }
@@ -552,7 +611,8 @@ function render(){
   let filtered = !q ? records : records.filter(r=>{
     return (r.plaka||'').toLocaleLowerCase('tr-TR').includes(q)
         || (r.ad||'').toLocaleLowerCase('tr-TR').includes(q)
-        || (r.tel||'').replace(/\s/g,'').includes(q.replace(/\s/g,''));
+        || (r.tel||'').replace(/\s/g,'').includes(q.replace(/\s/g,''))
+        || (r.not||'').toLocaleLowerCase('tr-TR').includes(q);
   });
 
   countPill.textContent = records.length === 0
@@ -569,18 +629,26 @@ function render(){
     return;
   }
 
-  // Verileri tarihe göre sırala
   filtered.sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0));
 
-  // Sayfalama hesaplamaları
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   if (currentPage > totalPages) currentPage = totalPages || 1; 
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedRecords = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  // HTML'i oluştur
   let html = paginatedRecords.map(r => {
-    const plate = splitPlate(r.plaka);
+    let tagHtml = '';
+    if(r.etiket === 'yesil') tagHtml = `<span class="badge status-badge yesil" data-id="${r.id}" title="Durumu değiştirmek için dokun">Az Uyarılan</span>`;
+    else if(r.etiket === 'sari') tagHtml = `<span class="badge status-badge sari" data-id="${r.id}" title="Durumu değiştirmek için dokun">Sık Uyarılan</span>`;
+    else if(r.etiket === 'kirmizi') tagHtml = `<span class="badge status-badge kirmizi" data-id="${r.id}" title="Durumu değiştirmek için dokun">Sürekli Hatalı</span>`;
+    else tagHtml = `<span class="badge status-badge gri" data-id="${r.id}" title="Durum eklemek için dokun">Durum Belirtilmedi</span>`;
+
+    const messageTemplate = encodeURIComponent(`Sayın ${(r.ad || 'İsimsiz').split(' ').map(w => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1).toLocaleLowerCase('tr-TR')).join(' ')} ${(r.plaka || '').replace(/\s+/g, '').toLocaleUpperCase('tr-TR')} plakalı aracınızı bulunduğu yerden kaldırmanız gerekmektedir.\n\nKavak Belediyesi\nZabıta`);
+    const pureTel = (r.tel || '').replace(/\D/g, '').slice(-10);
+
+    // Aktif alarm var mı kontrolü
+    const hasAlarm = activeAlarms[r.id] !== undefined;
+
     return `
     <div class="record" data-id="${r.id}">
       <div class="plate">
@@ -588,11 +656,30 @@ function render(){
         <div class="num">${escapeHtml(formatPlateDisplay(r.plaka))}</div>
       </div>
       <div class="info">
-        <p class="name">${escapeHtml(r.ad || 'İsimsiz')}</p>
-        ${r.tel ? `<a class="phone" href="tel:${escapeHtml(r.tel.replace(/\s/g,''))}">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          ${escapeHtml(r.tel)}
-        </a>` : ''}
+        ${tagHtml}
+        <div class="name">
+          ${escapeHtml(r.ad || 'İsimsiz')}
+          ${hasAlarm ? '<span class="alarm-icon" title="Alarm Kuruldu">⏰</span>' : ''}
+        </div>
+        ${r.tel ? `
+        <div class="msg-btns">
+          <a class="phone" href="tel:${escapeHtml(r.tel.replace(/\s/g,''))}">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            ${escapeHtml(r.tel)}
+          </a>
+          <a class="wa-btn" href="https://wa.me/90${pureTel}?text=${messageTemplate}" target="_blank" aria-label="WhatsApp" title="WhatsApp Mesajı Gönder">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+          </a>
+          <a class="sms-btn" href="sms:+90${pureTel}?body=${messageTemplate}" aria-label="SMS" title="Normal SMS Gönder">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </a>
+          <button class="alarm-btn" data-id="${r.id}" aria-label="Hatırlatıcı Kur" title="Süre Hatırlatıcı Kur">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          </button>
+        </div>
+        ` : ''}
+        ${r.not ? `<p class="note-text">${escapeHtml(r.not)}</p>` : ''}
+        <div class="timestamp">Son güncelleme: ${formatDate(r.updatedAt)}</div>
       </div>
       <div class="actions">
         <button class="edit" data-id="${r.id}" aria-label="Düzenle">
@@ -605,7 +692,6 @@ function render(){
     </div>`;
   }).join('');
 
-  // 1'den fazla sayfa varsa sayfalama butonlarını ekle
   if (totalPages > 1) {
     html += `
       <div class="pagination">
@@ -619,7 +705,6 @@ function render(){
   listEl.innerHTML = html;
 }
 
-// Sayfa değiştirme fonksiyonu
 window.changePage = function(direction) {
   currentPage += direction;
   render();
@@ -632,6 +717,9 @@ function openSheet(record){
   document.getElementById('fPlaka').value = record ? record.plaka : '';
   document.getElementById('fAd').value = record ? record.ad : '';
   document.getElementById('fTel').value = record ? record.tel : '';
+  document.getElementById('fEtiket').value = record && record.etiket ? record.etiket : '';
+  document.getElementById('fNot').value = record && record.not ? record.not : '';
+  
   backdrop.classList.add('open');
   sheet.classList.add('open');
   setTimeout(()=>document.getElementById('fPlaka').focus(), 200);
@@ -651,20 +739,22 @@ document.getElementById('saveBtn').addEventListener('click', async ()=>{
   const plaka = document.getElementById('fPlaka').value.trim().toUpperCase();
   const ad = document.getElementById('fAd').value.trim();
   const tel = document.getElementById('fTel').value.trim();
+  const etiket = document.getElementById('fEtiket').value;
+  const notVal = document.getElementById('fNot').value.trim();
 
   if(!plaka && !ad && !tel){
-    showToast('En az bir alan doldurun');
+    showToast('Plaka, ad veya telefondan birini girin');
     return;
   }
 
   let record;
   if(editingId){
     const idx = records.findIndex(r=>r.id === editingId);
-    record = { ...records[idx], plaka, ad, tel, updatedAt: Date.now() };
+    record = { ...records[idx], plaka, ad, tel, etiket, not: notVal, updatedAt: Date.now() };
   }else{
     record = {
       id: 'k' + Date.now() + Math.random().toString(36).slice(2,7),
-      plaka, ad, tel,
+      plaka, ad, tel, etiket, not: notVal,
       updatedAt: Date.now()
     };
   }
@@ -679,9 +769,56 @@ document.getElementById('saveBtn').addEventListener('click', async ()=>{
   }
 });
 
+// LİSTE ÜZERİNDEKİ TIKLAMA OLAYLARI 
 listEl.addEventListener('click', (e)=>{
   const editBtn = e.target.closest('.edit');
   const delBtn = e.target.closest('.del');
+  const badgeBtn = e.target.closest('.status-badge');
+  const alarmBtn = e.target.closest('.alarm-btn');
+  
+  // 1. Etiket Değiştirme
+  if(badgeBtn){
+    const rec = records.find(r=>r.id === badgeBtn.dataset.id);
+    if(rec){
+      let nextState = '';
+      let stateName = '';
+      
+      if(!rec.etiket) { nextState = 'yesil'; stateName = 'Az Uyarılan (Yeşil)'; }
+      else if(rec.etiket === 'yesil') { nextState = 'sari'; stateName = 'Sık Uyarılan (Sarı)'; }
+      else if(rec.etiket === 'sari') { nextState = 'kirmizi'; stateName = 'Sürekli Hatalı (Kırmızı)'; }
+      else if(rec.etiket === 'kirmizi') { nextState = ''; stateName = 'Durum Belirtilmedi (Gri)'; }
+      
+      if(confirm(`Bu aracın uyarı durumunu "${stateName}" olarak değiştirmek istediğinize emin misiniz?`)){
+        rec.etiket = nextState;
+        rec.updatedAt = Date.now();
+        dbPut(rec).then(() => { loadRecords(); showToast('Uyarı durumu güncellendi'); });
+      }
+    }
+  }
+
+  // 2. Alarm/Hatırlatıcı Kurma
+  if(alarmBtn){
+    const recId = alarmBtn.dataset.id;
+    if(activeAlarms[recId]) {
+      if(confirm("Bu araç için kurulu bir alarm var. İptal edilsin mi?")) {
+        delete activeAlarms[recId];
+        render();
+        showToast('Alarm iptal edildi');
+      }
+      return;
+    }
+
+    const mins = prompt("Araç sahibi kaç dakika süre istedi? (Sayı girin)", "10");
+    if(mins && !isNaN(mins) && Number(mins) > 0){
+      activeAlarms[recId] = Date.now() + (Number(mins) * 60000); // Milisaniyeye çevrildi
+      render();
+      showToast(`${mins} dakika sonrasına alarm kuruldu`);
+    } else if(mins !== null) {
+      showToast('Geçerli bir sayı girmelisiniz');
+    }
+  }
+
+  // 3. Düzenle & Sil
   if(editBtn){
     const rec = records.find(r=>r.id === editBtn.dataset.id);
     if(rec) openSheet(rec);
@@ -698,13 +835,36 @@ listEl.addEventListener('click', (e)=>{
   }
 });
 
-// Arama yapıldığında sayfalamayı sıfırla ve render et
+// HER 5 SANİYEDE BİR ALARMLARI KONTROL ET
+setInterval(() => {
+  const now = Date.now();
+  let needRender = false;
+
+  for(let id in activeAlarms){
+    if(now >= activeAlarms[id]){
+      // Süre doldu
+      const rec = records.find(r => r.id === id);
+      delete activeAlarms[id];
+      needRender = true;
+
+      if(rec){
+        const plate = formatPlateDisplay(rec.plaka);
+        const name = rec.ad || 'İsimsiz';
+        
+        // Cihazın kendi standart Alert (Uyarı) penceresini tetikler
+        alert(`⏰ SÜRE DOLDU!\n\nPlaka: ${plate}\nİsim: ${name}\n\nAraç sahibinin verdiği süre doldu, lütfen kontrol ediniz.`);
+      }
+    }
+  }
+
+  if(needRender) render();
+}, 5000);
+
 searchEl.addEventListener('input', () => {
   currentPage = 1; 
   render();
 });
 
-// --- CSV oluşturma / indirme / paylaşma ---
 function csvEscape(v){
   v = String(v == null ? '' : v);
   if(/[";\n]/.test(v)) return '"' + v.replace(/"/g,'""') + '"';
@@ -712,11 +872,11 @@ function csvEscape(v){
 }
 
 function buildCSV(){
-  const rows = [['Plaka','Ad Soyad','Telefon']];
+  const rows = [['Plaka','Ad Soyad','Telefon','Etiket','Not']];
   records
     .slice()
     .sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0))
-    .forEach(r => rows.push([r.plaka||'', r.ad||'', r.tel||'']));
+    .forEach(r => rows.push([r.plaka||'', r.ad||'', r.tel||'', r.etiket||'', r.not||'']));
   const body = rows.map(row => row.map(csvEscape).join(';')).join('\r\n');
   return '\uFEFF' + body; 
 }
@@ -777,7 +937,6 @@ async function shareCSV(){
 document.getElementById('downloadBtn').addEventListener('click', downloadCSV);
 document.getElementById('shareBtn').addEventListener('click', shareCSV);
 
-// --- Yedekten geri yükleme ---
 function parseCSV(text){
   if(text.charCodeAt(0) === 0xFEFF) text = text.slice(1); 
   const lines = text.split(/\r\n|\n/).filter(l => l.length > 0);
@@ -824,16 +983,19 @@ async function handleRestoreFile(e){
     let added = 0;
 
     for(let i = 1; i < rows.length; i++){ 
-      const [plaka, ad, tel] = rows[i];
+      const [plaka, ad, tel, etiket, notVal] = rows[i];
       if(!plaka && !ad && !tel) continue;
       const key = dedupeKey(plaka, tel);
       if(existingKeys.has(key)) continue; 
+      
       existingKeys.add(key);
       await dbPut({
         id: 'k' + Date.now() + Math.random().toString(36).slice(2,7) + added,
         plaka: (plaka||'').trim(),
         ad: (ad||'').trim(),
         tel: (tel||'').trim(),
+        etiket: (etiket||'').trim(),
+        not: (notVal||'').trim(),
         updatedAt: Date.now()
       });
       added++;
