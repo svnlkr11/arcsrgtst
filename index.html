@@ -250,6 +250,7 @@
   .msg-btns {
     display: flex;
     align-items: center;
+    flex-wrap: wrap; /* Çakışmayı önlemek için eklendi: sığmazsa alt satıra geçer */
     gap: 8px;
     margin-top: 6px;
   }
@@ -434,8 +435,10 @@
 
 <header>
   <div class="header-top">
-    <img src="res/kavak-logo.png" alt="Kavak Belediyesi logosu">
-    <div class="header-text">
+    <!-- Logoya tıklayınca yeniler -->
+    <img src="res/kavak-logo.png" alt="Kavak Belediyesi logosu" onclick="window.location.reload();" style="cursor: pointer;" title="Anasayfaya Dön">
+    <!-- Başlığa tıklayınca yeniler -->
+    <div class="header-text" onclick="window.location.reload();" style="cursor: pointer;" title="Anasayfaya Dön">
       <h1>Kavak Belediyesi</h1>
       <div class="subtitle">Araç Sorgu Sistemi</div>
       <div class="developer-note">Bekir Sevnc tarafından oluşturulmuştur</div>
@@ -515,7 +518,6 @@ let db = null;
 let records = [];
 let editingId = null;
 
-// ALARM LİSTESİ (Sistem belleğinde tutulur)
 let activeAlarms = {}; 
 
 let currentPage = 1;
@@ -536,6 +538,12 @@ function showToast(msg){
 
 function escapeHtml(s){
   return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function splitPlate(p){
+  p = (p||'').trim();
+  const m = p.match(/^(\d{1,2})/);
+  return { il: m ? m[1] : '', rest: p };
 }
 
 function formatPlateDisplay(p){
@@ -646,7 +654,6 @@ function render(){
     const messageTemplate = encodeURIComponent(`Sayın ${(r.ad || 'İsimsiz').split(' ').map(w => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1).toLocaleLowerCase('tr-TR')).join(' ')} ${(r.plaka || '').replace(/\s+/g, '').toLocaleUpperCase('tr-TR')} plakalı aracınızı bulunduğu yerden kaldırmanız gerekmektedir.\n\nKavak Belediyesi\nZabıta`);
     const pureTel = (r.tel || '').replace(/\D/g, '').slice(-10);
 
-    // Aktif alarm var mı kontrolü
     const hasAlarm = activeAlarms[r.id] !== undefined;
 
     return `
@@ -810,7 +817,7 @@ listEl.addEventListener('click', (e)=>{
 
     const mins = prompt("Araç sahibi kaç dakika süre istedi? (Sayı girin)", "10");
     if(mins && !isNaN(mins) && Number(mins) > 0){
-      activeAlarms[recId] = Date.now() + (Number(mins) * 60000); // Milisaniyeye çevrildi
+      activeAlarms[recId] = Date.now() + (Number(mins) * 60000); 
       render();
       showToast(`${mins} dakika sonrasına alarm kuruldu`);
     } else if(mins !== null) {
@@ -842,7 +849,6 @@ setInterval(() => {
 
   for(let id in activeAlarms){
     if(now >= activeAlarms[id]){
-      // Süre doldu
       const rec = records.find(r => r.id === id);
       delete activeAlarms[id];
       needRender = true;
@@ -851,7 +857,6 @@ setInterval(() => {
         const plate = formatPlateDisplay(rec.plaka);
         const name = rec.ad || 'İsimsiz';
         
-        // Cihazın kendi standart Alert (Uyarı) penceresini tetikler
         alert(`⏰ SÜRE DOLDU!\n\nPlaka: ${plate}\nİsim: ${name}\n\nAraç sahibinin verdiği süre doldu, lütfen kontrol ediniz.`);
       }
     }
