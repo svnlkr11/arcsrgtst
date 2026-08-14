@@ -634,7 +634,7 @@
   </div>
   <div class="field">
     <label>Açıklama / Not</label>
-    <input id="fNot" type="text" placeholder="Örn: Sürekli sokağa park ediyor">
+    <input id="fNot" type="text" placeholder="Örn: Sürekli yanlış yere park ediyor">
   </div>
   <div class="sheet-actions">
     <button class="btn ghost" id="cancelBtn">Vazgeç</button>
@@ -688,7 +688,7 @@
   <h2>Yeni Uyarı Kaydı</h2>
   <div class="field">
     <label>Not</label>
-    <input id="logNot" type="text" placeholder="Örn: Yine sokağa park etmiş">
+    <input id="logNot" type="text" placeholder="Örn: Yine yanlış yere park etmiş">
   </div>
   <div class="field">
     <label>Konum</label>
@@ -1139,7 +1139,12 @@ listEl.addEventListener('click', (e)=>{
       return;
     }
 
-    const mins = prompt("Araç sahibi kaç dakika süre istedi? (Sayı girin)", "10");
+    // İlk alarm kurulumunda bildirim izni iste (mümkünse)
+    if('Notification' in window && Notification.permission === 'default'){
+      Notification.requestPermission();
+    }
+
+    const mins = prompt("Araç sahibi kaç dakika süre istedi? (Sayı girin)\n\nNot: Bu hatırlatıcı yalnızca uygulama açıkken çalışır; uygulamayı kapatır veya telefonu kilitlerseniz bildirim gelmez (iOS/Safari kısıtlaması).", "10");
     if(mins && !isNaN(mins) && Number(mins) > 0){
       activeAlarms[recId] = Date.now() + (Number(mins) * 60000); 
       render();
@@ -1184,8 +1189,21 @@ setInterval(() => {
       if(rec){
         const plate = formatPlateDisplay(rec.plaka);
         const name = rec.ad || 'İsimsiz';
-        
-        alert(`⏰ SÜRE DOLDU!\n\nPlaka: ${plate}\nİsim: ${name}\n\nAraç sahibinin verdiği süre doldu, lütfen kontrol ediniz.`);
+        const title = '⏰ Süre Doldu!';
+        const body = `Plaka: ${plate}\nİsim: ${name}\nAraç sahibinin verdiği süre doldu, lütfen kontrol ediniz.`;
+
+        if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+        // Mümkünse sistem bildirimi göster, olmazsa alert() ile uyar
+        if('Notification' in window && Notification.permission === 'granted'){
+          try{
+            new Notification(title, { body, icon: 'res/kavak-logo.png' });
+          }catch(e){
+            alert(`${title}\n\n${body}`);
+          }
+        } else {
+          alert(`${title}\n\n${body}`);
+        }
       }
     }
   }
@@ -1564,10 +1582,10 @@ logBackdrop.addEventListener('click', closeLogSheet);
 
 logLocBtn.addEventListener('click', ()=>{
   if(!navigator.geolocation){
-    logLocStatus.textContent = 'Bu cihaz konum özelliğini desteklemiyor';
+    logLocStatus.textContent = 'Bu cihaz/tarayıcı konum özelliğini desteklemiyor';
     return;
   }
-  logLocStatus.textContent = 'Konum alınıyor...';
+  logLocStatus.textContent = 'Konum alınıyor... (açık alanda birkaç saniye sürebilir)';
   navigator.geolocation.getCurrentPosition(
     (pos)=>{
       pendingLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -1575,9 +1593,17 @@ logLocBtn.addEventListener('click', ()=>{
       logLocStatus.textContent = `Konum eklendi ✓ (${pendingLoc.lat.toFixed(5)}, ${pendingLoc.lng.toFixed(5)})`;
     },
     (err)=>{
-      logLocStatus.textContent = 'Konum alınamadı, izin verildiğinden emin olun';
+      let msg = 'Konum alınamadı';
+      if(err.code === 1){
+        msg = 'Konum izni reddedildi. Ayarlar > Gizlilik ve Güvenlik > Konum Servisleri kısmından bu uygulamaya izin verildiğinden emin olun; ardından uygulamayı kapatıp yeniden açın.';
+      } else if(err.code === 2){
+        msg = 'Konum sinyali alınamadı (GPS/ağ sorunu). Kapalı alandaysanız pencereye yakın durup tekrar deneyin.';
+      } else if(err.code === 3){
+        msg = 'Konum isteği zaman aşımına uğradı, tekrar deneyin.';
+      }
+      logLocStatus.textContent = msg;
     },
-    { enableHighAccuracy: true, timeout: 10000 }
+    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
   );
 });
 
