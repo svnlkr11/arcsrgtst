@@ -9,6 +9,13 @@
 <link rel="icon" type="image/png" href="res/kavak-logo.png">
 <link rel="apple-touch-icon" href="res/kavak-logo.png">
 
+<!-- PWA Ayarları -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#16324a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Araç Sorgu">
+
 <style>
   :root{
     --navy:#16324a;
@@ -295,6 +302,100 @@
   .actions button:active{background:var(--line);}
   .actions svg{width:17px;height:17px;stroke:currentColor;display:block;}
   .actions .del svg{stroke:var(--danger);}
+  .actions .log svg{stroke:var(--amber-deep);}
+
+  /* Uyarı Geçmişi (Log) */
+  .history-toggle{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-size:12px;
+    font-weight:600;
+    color:var(--navy);
+    background:none;
+    border:none;
+    padding:5px 0 0;
+    cursor:pointer;
+  }
+  .history-toggle svg{width:12px;height:12px;stroke:var(--navy);transition:transform .2s;}
+  .history-toggle.open svg{transform:rotate(180deg);}
+  .history-list{
+    display:none;
+    margin-top:8px;
+    padding-left:10px;
+    border-left:2px solid var(--line);
+  }
+  .history-list.open{display:block;}
+  .history-item{
+    padding:8px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .history-item:last-child{border-bottom:none;}
+  .history-item .h-date{font-size:10.5px;color:#9aa0a6;font-weight:700;}
+  .history-item .h-note{font-size:12.5px;color:var(--ink);margin:3px 0;}
+  .history-item .h-meta{display:flex;gap:10px;align-items:center;margin-top:4px;flex-wrap:wrap;}
+  .history-item .h-loc{
+    font-size:11.5px;
+    color:var(--navy);
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:3px;
+    font-weight:600;
+  }
+  .history-item .h-loc svg{width:11px;height:11px;stroke:var(--navy);}
+  .history-thumb{
+    width:52px;
+    height:52px;
+    border-radius:8px;
+    object-fit:cover;
+    border:1px solid var(--line);
+    cursor:pointer;
+  }
+
+  .lightbox{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,0.88);
+    z-index:60;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  .lightbox.open{display:flex;}
+  .lightbox img{max-width:100%;max-height:100%;border-radius:8px;}
+
+  /* Uyarı Ekle sheet - foto/konum */
+  .photo-preview-wrap{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:6px;
+  }
+  .photo-preview{
+    width:64px;height:64px;
+    border-radius:10px;
+    object-fit:cover;
+    border:1.5px solid var(--line);
+    display:none;
+  }
+  .photo-preview.show{display:block;}
+  .chip-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:9px 13px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:#fff;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .chip-btn.active{border-color:var(--navy);color:var(--navy);background:#eef3f7;}
+  .chip-btn svg{width:15px;height:15px;stroke:currentColor;}
+  .loc-status{font-size:11.5px;color:var(--ink-soft);margin-top:6px;}
 
   .fab{
     position:fixed;
@@ -500,7 +601,7 @@
   </div>
   <div class="field">
     <label>Açıklama / Not</label>
-    <input id="fNot" type="text" placeholder="Örn: Sürekli sokağa park ediyor">
+    <input id="fNot" type="text" placeholder="Örn: Sürekli yanlış yere park ediyor">
   </div>
   <div class="sheet-actions">
     <button class="btn ghost" id="cancelBtn">Vazgeç</button>
@@ -508,15 +609,56 @@
   </div>
 </div>
 
+<div class="sheet-backdrop" id="logBackdrop"></div>
+<div class="sheet" id="logSheet">
+  <h2>Yeni Uyarı Kaydı</h2>
+  <div class="field">
+    <label>Not</label>
+    <input id="logNot" type="text" placeholder="Örn: Yine yanlış yere park etmiş">
+  </div>
+  <div class="field">
+    <label>Konum</label>
+    <button type="button" class="chip-btn" id="logLocBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Konumu Ekle
+    </button>
+    <div class="loc-status" id="logLocStatus"></div>
+  </div>
+  <div class="field">
+    <label>Kanıt Fotoğrafı</label>
+    <div class="photo-preview-wrap">
+      <button type="button" class="chip-btn" id="logPhotoBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Fotoğraf Çek / Seç
+      </button>
+      <img id="logPhotoPreview" class="photo-preview" alt="Önizleme">
+    </div>
+    <input type="file" id="logPhotoInput" accept="image/*" capture="environment" style="display:none">
+  </div>
+  <div class="sheet-actions">
+    <button class="btn ghost" id="logCancelBtn">Vazgeç</button>
+    <button class="btn primary" id="logSaveBtn">Uyarıyı Kaydet</button>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <img id="lightboxImg" alt="Fotoğraf">
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 const DB_NAME = 'zabitaAracDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_NAME = 'kayitlar';
+const PHOTO_STORE_NAME = 'fotograflar';
 let db = null;
 let records = [];
 let editingId = null;
+let logRecordId = null; // Şu an "Uyarı Ekle" formu açık olan kaydın id'si
+let pendingLoc = null;  // { lat, lng }
+let pendingPhotoBlob = null;
+let activePhotoUrls = []; // Her render sonrası oluşturulan object URL'ler (bellek temizliği için)
 
 let activeAlarms = {}; 
 
@@ -569,9 +711,64 @@ function openDB(){
       if(!database.objectStoreNames.contains(STORE_NAME)){
         database.createObjectStore(STORE_NAME, { keyPath: 'id' });
       }
+      if(!database.objectStoreNames.contains(PHOTO_STORE_NAME)){
+        database.createObjectStore(PHOTO_STORE_NAME, { keyPath: 'id' });
+      }
     };
     req.onsuccess = ()=> resolve(req.result);
     req.onerror = ()=> reject(req.error);
+  });
+}
+
+function dbPutPhoto(id, blob){
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(PHOTO_STORE_NAME, 'readwrite');
+    tx.objectStore(PHOTO_STORE_NAME).put({ id, blob });
+    tx.oncomplete = ()=> resolve();
+    tx.onerror = ()=> reject(tx.error);
+  });
+}
+
+function dbGetPhoto(id){
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(PHOTO_STORE_NAME, 'readonly');
+    const req = tx.objectStore(PHOTO_STORE_NAME).get(id);
+    req.onsuccess = ()=> resolve(req.result ? req.result.blob : null);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+
+function dbDeletePhoto(id){
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(PHOTO_STORE_NAME, 'readwrite');
+    tx.objectStore(PHOTO_STORE_NAME).delete(id);
+    tx.oncomplete = ()=> resolve();
+    tx.onerror = ()=> reject(tx.error);
+  });
+}
+
+// Fotoğrafı canvas ile küçültüp sıkıştırır (IndexedDB'yi şişirmemek için)
+function compressImage(file, maxDim = 1280, quality = 0.72){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      img.onload = ()=>{
+        let { width, height } = img;
+        if(width > maxDim || height > maxDim){
+          if(width > height){ height = Math.round(height * maxDim / width); width = maxDim; }
+          else { width = Math.round(width * maxDim / height); height = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Sıkıştırma başarısız')), 'image/jpeg', quality);
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
 }
 
@@ -655,6 +852,7 @@ function render(){
     const pureTel = (r.tel || '').replace(/\D/g, '').slice(-10);
 
     const hasAlarm = activeAlarms[r.id] !== undefined;
+    const gecmis = r.gecmis || [];
 
     return `
     <div class="record" data-id="${r.id}">
@@ -687,8 +885,33 @@ function render(){
         ` : ''}
         ${r.not ? `<p class="note-text">${escapeHtml(r.not)}</p>` : ''}
         <div class="timestamp">Son güncelleme: ${formatDate(r.updatedAt)}</div>
+        ${gecmis.length > 0 ? `
+        <button class="history-toggle" data-id="${r.id}" aria-label="Geçmişi göster">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          Uyarı Geçmişi (${gecmis.length})
+        </button>
+        <div class="history-list" id="hist-${r.id}">
+          ${gecmis.slice().sort((a,b)=>(b.tarih||0)-(a.tarih||0)).map(h => `
+            <div class="history-item">
+              <div class="h-date">${formatDate(h.tarih)}</div>
+              ${h.not ? `<div class="h-note">${escapeHtml(h.not)}</div>` : ''}
+              <div class="h-meta">
+                ${(h.lat!=null && h.lng!=null) ? `
+                <a class="h-loc" href="https://maps.google.com/?q=${h.lat},${h.lng}" target="_blank">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  Konumu Gör
+                </a>` : ''}
+                ${h.fotoId ? `<img class="history-thumb" data-photo-id="${h.fotoId}" alt="Kanıt fotoğrafı">` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        ` : ''}
       </div>
       <div class="actions">
+        <button class="log" data-id="${r.id}" aria-label="Uyarı Ekle" title="Yeni Uyarı Kaydı Ekle">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+        </button>
         <button class="edit" data-id="${r.id}" aria-label="Düzenle">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </button>
@@ -710,6 +933,7 @@ function render(){
   }
 
   listEl.innerHTML = html;
+  hydratePhotos();
 }
 
 window.changePage = function(direction) {
@@ -782,6 +1006,32 @@ listEl.addEventListener('click', (e)=>{
   const delBtn = e.target.closest('.del');
   const badgeBtn = e.target.closest('.status-badge');
   const alarmBtn = e.target.closest('.alarm-btn');
+  const logBtn = e.target.closest('.log');
+  const histToggle = e.target.closest('.history-toggle');
+  const histThumb = e.target.closest('.history-thumb');
+
+  // 0. Uyarı Ekle (log kaydı: not / konum / fotoğraf)
+  if(logBtn){
+    openLogSheet(logBtn.dataset.id);
+    return;
+  }
+
+  // 0b. Geçmiş listesini aç/kapa
+  if(histToggle){
+    const list = document.getElementById('hist-' + histToggle.dataset.id);
+    if(list){
+      list.classList.toggle('open');
+      histToggle.classList.toggle('open');
+    }
+    return;
+  }
+
+  // 0c. Kanıt fotoğrafını büyüt
+  if(histThumb){
+    lightboxImg.src = histThumb.src;
+    lightbox.classList.add('open');
+    return;
+  }
   
   // 1. Etiket Değiştirme
   if(badgeBtn){
@@ -833,11 +1083,15 @@ listEl.addEventListener('click', (e)=>{
   if(delBtn){
     const rec = records.find(r=>r.id === delBtn.dataset.id);
     if(rec && confirm(`"${rec.ad || rec.plaka || 'Bu kayıt'}" silinsin mi?`)){
-      dbDelete(rec.id).then(loadRecords).then(()=>{
-        showToast('Kayıt silindi');
-      }).catch(()=>{
-        showToast('Silme sırasında bir sorun oluştu');
-      });
+      const photoIds = (rec.gecmis || []).filter(h => h.fotoId).map(h => h.fotoId);
+      Promise.all(photoIds.map(pid => dbDeletePhoto(pid).catch(()=>{})))
+        .then(()=> dbDelete(rec.id))
+        .then(loadRecords)
+        .then(()=>{
+          showToast('Kayıt silindi');
+        }).catch(()=>{
+          showToast('Silme sırasında bir sorun oluştu');
+        });
     }
   }
 });
@@ -1018,7 +1272,145 @@ document.getElementById('restoreBtn').addEventListener('click', ()=>{
 });
 document.getElementById('restoreInput').addEventListener('change', handleRestoreFile);
 
+// ============ UYARI GEÇMİŞİ (LOG) - KONUM & FOTOĞRAF ============
+
+const logSheet = document.getElementById('logSheet');
+const logBackdrop = document.getElementById('logBackdrop');
+const logLocStatus = document.getElementById('logLocStatus');
+const logLocBtn = document.getElementById('logLocBtn');
+const logPhotoBtn = document.getElementById('logPhotoBtn');
+const logPhotoInput = document.getElementById('logPhotoInput');
+const logPhotoPreview = document.getElementById('logPhotoPreview');
+
+function openLogSheet(recId){
+  logRecordId = recId;
+  pendingLoc = null;
+  pendingPhotoBlob = null;
+  document.getElementById('logNot').value = '';
+  logLocStatus.textContent = '';
+  logLocBtn.classList.remove('active');
+  logPhotoPreview.classList.remove('show');
+  logPhotoPreview.src = '';
+  logBackdrop.classList.add('open');
+  logSheet.classList.add('open');
+}
+
+function closeLogSheet(){
+  logBackdrop.classList.remove('open');
+  logSheet.classList.remove('open');
+  logRecordId = null;
+}
+
+document.getElementById('logCancelBtn').addEventListener('click', closeLogSheet);
+logBackdrop.addEventListener('click', closeLogSheet);
+
+logLocBtn.addEventListener('click', ()=>{
+  if(!navigator.geolocation){
+    logLocStatus.textContent = 'Bu cihaz konum özelliğini desteklemiyor';
+    return;
+  }
+  logLocStatus.textContent = 'Konum alınıyor...';
+  navigator.geolocation.getCurrentPosition(
+    (pos)=>{
+      pendingLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      logLocBtn.classList.add('active');
+      logLocStatus.textContent = `Konum eklendi ✓ (${pendingLoc.lat.toFixed(5)}, ${pendingLoc.lng.toFixed(5)})`;
+    },
+    (err)=>{
+      logLocStatus.textContent = 'Konum alınamadı, izin verildiğinden emin olun';
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+});
+
+logPhotoBtn.addEventListener('click', ()=> logPhotoInput.click());
+
+logPhotoInput.addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  try{
+    showToast('Fotoğraf işleniyor...');
+    pendingPhotoBlob = await compressImage(file);
+    logPhotoPreview.src = URL.createObjectURL(pendingPhotoBlob);
+    logPhotoPreview.classList.add('show');
+    showToast('Fotoğraf eklendi');
+  }catch(err){
+    showToast('Fotoğraf işlenemedi');
+    pendingPhotoBlob = null;
+  }
+});
+
+document.getElementById('logSaveBtn').addEventListener('click', async ()=>{
+  if(!logRecordId) return;
+  const notVal = document.getElementById('logNot').value.trim();
+
+  if(!notVal && !pendingLoc && !pendingPhotoBlob){
+    showToast('Not, konum veya fotoğraftan en az birini ekleyin');
+    return;
+  }
+
+  const rec = records.find(r => r.id === logRecordId);
+  if(!rec) return;
+
+  const entry = { id: 'g' + Date.now() + Math.random().toString(36).slice(2,7), tarih: Date.now() };
+  if(notVal) entry.not = notVal;
+  if(pendingLoc){ entry.lat = pendingLoc.lat; entry.lng = pendingLoc.lng; }
+
+  try{
+    if(pendingPhotoBlob){
+      entry.fotoId = entry.id;
+      await dbPutPhoto(entry.fotoId, pendingPhotoBlob);
+    }
+
+    if(!rec.gecmis) rec.gecmis = [];
+    rec.gecmis.push(entry);
+    rec.updatedAt = Date.now();
+
+    await dbPut(rec);
+    await loadRecords();
+    closeLogSheet();
+    showToast('Uyarı kaydı eklendi');
+  }catch(err){
+    showToast('Kayıt sırasında bir sorun oluştu');
+  }
+});
+
+// Geçmiş fotoğraflarını IndexedDB'den çekip <img> etiketlerine yerleştirir
+async function hydratePhotos(){
+  // Önceki render'da oluşturulan object URL'leri bellekten temizle
+  activePhotoUrls.forEach(url => URL.revokeObjectURL(url));
+  activePhotoUrls = [];
+
+  const thumbs = listEl.querySelectorAll('.history-thumb[data-photo-id]');
+  for(const img of thumbs){
+    const photoId = img.dataset.photoId;
+    try{
+      const blob = await dbGetPhoto(photoId);
+      if(blob){
+        const url = URL.createObjectURL(blob);
+        activePhotoUrls.push(url);
+        img.src = url;
+      }
+    }catch(e){ /* fotoğraf bulunamadıysa sessizce geç */ }
+  }
+}
+
+// Lightbox (fotoğrafı büyük göster)
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+lightbox.addEventListener('click', ()=> lightbox.classList.remove('open'));
+
 loadRecords();
+
+// PWA: Service Worker Kaydı
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{
+      // Sessizce yut - service worker desteklenmiyorsa uygulama yine de normal çalışır
+    });
+  });
+}
 </script>
 
 </body>
