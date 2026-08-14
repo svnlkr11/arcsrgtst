@@ -516,6 +516,15 @@
     color:var(--ink);
   }
   .field input:focus, .field select:focus{border-color:var(--navy);}
+  .auto-status-info{
+    padding:11px 13px;
+    border-radius:10px;
+    border:1.5px dashed var(--line);
+    font-size:14px;
+    color:var(--ink-soft);
+    background:#fafafa;
+  }
+  .auto-status-info b{color:var(--ink);}
   .sheet-actions{
     display:flex;
     gap:10px;
@@ -639,13 +648,9 @@
     <input id="fTel" type="tel" placeholder="05xx xxx xx xx">
   </div>
   <div class="field">
-    <label>Uyarı Durumu</label>
-    <select id="fEtiket">
-      <option value="">Seçilmedi (Gri)</option>
-      <option value="yesil">Az Uyarılan (Yeşil)</option>
-      <option value="sari">Sık Uyarılan (Sarı)</option>
-      <option value="kirmizi">Sürekli Hatalı Park (Kırmızı)</option>
-    </select>
+    <label>Uyarı Durumu (Otomatik)</label>
+    <div id="fEtiketInfo" class="auto-status-info"></div>
+    <button type="button" class="btn ghost" id="fResetSayac" style="display:none;margin-top:6px;">🔄 Uyarı Sayacını Sıfırla</button>
   </div>
   <div class="field">
     <label>Açıklama / Not</label>
@@ -792,6 +797,17 @@ function formatDate(ts) {
   return d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' });
 }
 
+// Uyarı sayısına göre otomatik durum hesaplar.
+// rec.sayacResetAt tarihinden SONRAKİ uyarılar sayılır (sıfırlanınca sayaç 0'dan başlar).
+function getAutoStatus(rec){
+  const since = (rec && rec.sayacResetAt) || 0;
+  const count = ((rec && rec.gecmis) || []).filter(h => (h.tarih || 0) > since).length;
+  if(count <= 0) return { key: '', label: 'Durum Belirtilmedi', count };
+  if(count === 1) return { key: 'yesil', label: 'İlk Uyarı', count };
+  if(count <= 3) return { key: 'sari', label: 'Tekrarlı İhlal', count };
+  return { key: 'kirmizi', label: 'Sürekli Hatalı', count };
+}
+
 function openDB(){
   return new Promise((resolve, reject)=>{
     const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -931,11 +947,12 @@ function render(){
   const paginatedRecords = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   let html = paginatedRecords.map(r => {
+    const auto = getAutoStatus(r);
     let tagHtml = '';
-    if(r.etiket === 'yesil') tagHtml = `<span class="badge status-badge yesil" data-id="${r.id}" title="Durumu değiştirmek için dokun">Az Uyarılan</span>`;
-    else if(r.etiket === 'sari') tagHtml = `<span class="badge status-badge sari" data-id="${r.id}" title="Durumu değiştirmek için dokun">Sık Uyarılan</span>`;
-    else if(r.etiket === 'kirmizi') tagHtml = `<span class="badge status-badge kirmizi" data-id="${r.id}" title="Durumu değiştirmek için dokun">Sürekli Hatalı</span>`;
-    else tagHtml = `<span class="badge status-badge gri" data-id="${r.id}" title="Durum eklemek için dokun">Durum Belirtilmedi</span>`;
+    if(auto.key === 'yesil') tagHtml = `<span class="badge status-badge yesil" data-id="${r.id}" title="Otomatik: ${auto.count} uyarı">İlk Uyarı</span>`;
+    else if(auto.key === 'sari') tagHtml = `<span class="badge status-badge sari" data-id="${r.id}" title="Otomatik: ${auto.count} uyarı">Tekrarlı İhlal</span>`;
+    else if(auto.key === 'kirmizi') tagHtml = `<span class="badge status-badge kirmizi" data-id="${r.id}" title="Otomatik: ${auto.count} uyarı">Sürekli Hatalı</span>`;
+    else tagHtml = `<span class="badge status-badge gri" data-id="${r.id}" title="Henüz uyarı kaydı yok">Durum Belirtilmedi</span>`;
 
     const messageTemplate = encodeURIComponent(`Sayın ${(r.ad || 'İsimsiz').split(' ').map(w => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1).toLocaleLowerCase('tr-TR')).join(' ')} ${(r.plaka || '').replace(/\s+/g, '').toLocaleUpperCase('tr-TR')} plakalı aracınızı bulunduğu yerden kaldırmanız gerekmektedir.\n\nKavak Belediyesi\nZabıta`);
     const pureTel = (r.tel || '').replace(/\D/g, '').slice(-10);
@@ -1042,9 +1059,19 @@ function openSheet(record){
   document.getElementById('fPlaka').value = record ? record.plaka : '';
   document.getElementById('fAd').value = record ? record.ad : '';
   document.getElementById('fTel').value = record ? record.tel : '';
-  document.getElementById('fEtiket').value = record && record.etiket ? record.etiket : '';
   document.getElementById('fNot').value = record && record.not ? record.not : '';
-  
+
+  const infoEl = document.getElementById('fEtiketInfo');
+  const resetBtn = document.getElementById('fResetSayac');
+  if(record){
+    const auto = getAutoStatus(record);
+    infoEl.innerHTML = `<b>${auto.label}</b> — ${auto.count} uyarı sayılıyor` + (record.sayacResetAt ? ` (son sıfırlama: ${formatDate(record.sayacResetAt)})` : '');
+    resetBtn.style.display = auto.count > 0 ? 'inline-flex' : 'none';
+  } else {
+    infoEl.textContent = 'Kayıt oluşturulunca uyarı sayısına göre otomatik belirlenecek';
+    resetBtn.style.display = 'none';
+  }
+
   backdrop.classList.add('open');
   sheet.classList.add('open');
   setTimeout(()=>document.getElementById('fPlaka').focus(), 200);
@@ -1056,6 +1083,19 @@ function closeSheet(){
   editingId = null;
 }
 
+document.getElementById('fResetSayac').addEventListener('click', async ()=>{
+  if(!editingId) return;
+  const rec = records.find(r=>r.id === editingId);
+  if(!rec) return;
+  if(!confirm('Uyarı sayacı sıfırlansın mı? Geçmiş kayıtlar (not/konum/fotoğraf) silinmez, sadece durum etiketi "Durum Belirtilmedi"ye döner ve sayım şu andan itibaren yeniden başlar.')) return;
+  rec.sayacResetAt = Date.now();
+  rec.updatedAt = Date.now();
+  await dbPut(rec);
+  await loadRecords();
+  showToast('Uyarı sayacı sıfırlandı');
+  closeSheet();
+});
+
 document.getElementById('openAdd').addEventListener('click', ()=>openSheet(null));
 document.getElementById('cancelBtn').addEventListener('click', closeSheet);
 backdrop.addEventListener('click', closeSheet);
@@ -1064,7 +1104,6 @@ document.getElementById('saveBtn').addEventListener('click', async ()=>{
   const plaka = document.getElementById('fPlaka').value.trim().toUpperCase();
   const ad = document.getElementById('fAd').value.trim();
   const tel = document.getElementById('fTel').value.trim();
-  const etiket = document.getElementById('fEtiket').value;
   const notVal = document.getElementById('fNot').value.trim();
 
   if(!plaka && !ad && !tel){
@@ -1075,11 +1114,11 @@ document.getElementById('saveBtn').addEventListener('click', async ()=>{
   let record;
   if(editingId){
     const idx = records.findIndex(r=>r.id === editingId);
-    record = { ...records[idx], plaka, ad, tel, etiket, not: notVal, updatedAt: Date.now() };
+    record = { ...records[idx], plaka, ad, tel, not: notVal, updatedAt: Date.now() };
   }else{
     record = {
       id: 'k' + Date.now() + Math.random().toString(36).slice(2,7),
-      plaka, ad, tel, etiket, not: notVal,
+      plaka, ad, tel, not: notVal,
       updatedAt: Date.now()
     };
   }
@@ -1147,23 +1186,12 @@ listEl.addEventListener('click', (e)=>{
     return;
   }
   
-  // 1. Etiket Değiştirme
+  // 1. Etiket Değiştirme (artık otomatik: sadece bilgi ver)
   if(badgeBtn){
     const rec = records.find(r=>r.id === badgeBtn.dataset.id);
     if(rec){
-      let nextState = '';
-      let stateName = '';
-      
-      if(!rec.etiket) { nextState = 'yesil'; stateName = 'Az Uyarılan (Yeşil)'; }
-      else if(rec.etiket === 'yesil') { nextState = 'sari'; stateName = 'Sık Uyarılan (Sarı)'; }
-      else if(rec.etiket === 'sari') { nextState = 'kirmizi'; stateName = 'Sürekli Hatalı (Kırmızı)'; }
-      else if(rec.etiket === 'kirmizi') { nextState = ''; stateName = 'Durum Belirtilmedi (Gri)'; }
-      
-      if(confirm(`Bu aracın uyarı durumunu "${stateName}" olarak değiştirmek istediğinize emin misiniz?`)){
-        rec.etiket = nextState;
-        rec.updatedAt = Date.now();
-        dbPut(rec).then(() => { loadRecords(); showToast('Uyarı durumu güncellendi'); });
-      }
+      const auto = getAutoStatus(rec);
+      showToast(`Durum otomatik hesaplanıyor: ${auto.count} uyarı. Sıfırlamak için "Kaydı Düzenle"yi kullanın.`);
     }
   }
 
@@ -1267,7 +1295,7 @@ function buildCSV(){
   records
     .slice()
     .sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0))
-    .forEach(r => rows.push([r.plaka||'', r.ad||'', r.tel||'', r.etiket||'', r.not||'', (r.gecmis||[]).length]));
+    .forEach(r => rows.push([r.plaka||'', r.ad||'', r.tel||'', getAutoStatus(r).label, r.not||'', (r.gecmis||[]).length]));
   const body = rows.map(row => row.map(csvEscape).join(';')).join('\r\n');
   return '\uFEFF' + body; 
 }
