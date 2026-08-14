@@ -397,6 +397,44 @@
   .chip-btn svg{width:15px;height:15px;stroke:currentColor;}
   .loc-status{font-size:11.5px;color:var(--ink-soft);margin-top:6px;}
 
+  /* Yedekleme Menüsü */
+  .backup-group{margin-bottom:16px;}
+  .backup-group-title{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    margin:0 0 8px;
+  }
+  .backup-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    padding:12px 13px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:#fff;
+    margin-bottom:8px;
+    cursor:pointer;
+    text-align:left;
+    font-size:14px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .backup-row:active{background:var(--line);}
+  .backup-row .b-icon{
+    width:34px;height:34px;
+    border-radius:9px;
+    background:var(--cream);
+    display:flex;align-items:center;justify-content:center;
+    flex:0 0 auto;
+  }
+  .backup-row .b-icon svg{width:17px;height:17px;stroke:var(--navy);}
+  .backup-row .b-text{flex:1 1 auto;min-width:0;}
+  .backup-row .b-sub{display:block;font-size:11.5px;font-weight:500;color:var(--ink-soft);margin-top:1px;}
+
   .fab{
     position:fixed;
     right:18px;
@@ -545,16 +583,11 @@
       <div class="developer-note">Bekir Sevnc tarafından oluşturulmuştur</div>
     </div>
     <div class="header-actions">
-      <button class="icon-btn" id="downloadBtn" aria-label="İndir">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      </button>
-      <button class="icon-btn" id="shareBtn" aria-label="Paylaş">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-      </button>
-      <button class="icon-btn" id="restoreBtn" aria-label="Geri Yükle">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.64-6.36"/><polyline points="3 3 3 8 8 8"/></svg>
+      <button class="icon-btn" id="backupMenuBtn" aria-label="Yedekleme">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
       </button>
       <input type="file" id="restoreInput" accept=".csv,text/csv" style="display:none">
+      <input type="file" id="jsonRestoreInput" accept=".json,application/json" style="display:none">
     </div>
   </div>
   <div class="search-wrap">
@@ -601,11 +634,52 @@
   </div>
   <div class="field">
     <label>Açıklama / Not</label>
-    <input id="fNot" type="text" placeholder="Örn: Sürekli yanlış yere park ediyor">
+    <input id="fNot" type="text" placeholder="Örn: Sürekli sokağa park ediyor">
   </div>
   <div class="sheet-actions">
     <button class="btn ghost" id="cancelBtn">Vazgeç</button>
     <button class="btn primary" id="saveBtn">Kaydet</button>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="backupBackdrop"></div>
+<div class="sheet" id="backupSheet">
+  <h2>Yedekleme &amp; Geri Yükleme</h2>
+
+  <div class="backup-group">
+    <p class="backup-group-title">Tam Yedek (Fotoğraf ve Geçmiş Dahil)</p>
+    <button type="button" class="backup-row" id="jsonDownloadBtn">
+      <span class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+      <span class="b-text">JSON Yedeği İndir<span class="b-sub">Tüm kayıtlar, uyarı geçmişi ve fotoğraflar</span></span>
+    </button>
+    <button type="button" class="backup-row" id="jsonShareBtn">
+      <span class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></span>
+      <span class="b-text">JSON Yedeğini Paylaş<span class="b-sub">iCloud, Dosyalar veya AirDrop ile gönder</span></span>
+    </button>
+    <button type="button" class="backup-row" id="jsonRestoreBtn">
+      <span class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.64-6.36"/><polyline points="3 3 3 8 8 8"/></svg></span>
+      <span class="b-text">JSON Yedeğinden Geri Yükle<span class="b-sub">Fotoğraflar dahil tüm veriyi içe aktar</span></span>
+    </button>
+  </div>
+
+  <div class="backup-group">
+    <p class="backup-group-title">Basit Yedek (CSV — sadece liste)</p>
+    <button type="button" class="backup-row" id="csvDownloadBtn">
+      <span class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+      <span class="b-text">CSV İndir<span class="b-sub">Fotoğraf ve konum bilgisi içermez</span></span>
+    </button>
+    <button type="button" class="backup-row" id="csvShareBtn">
+      <span class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></span>
+      <span class="b-text">CSV Paylaş</span>
+    </button>
+    <button type="button" class="backup-row" id="csvRestoreBtn">
+      <span class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.64-6.36"/><polyline points="3 3 3 8 8 8"/></svg></span>
+      <span class="b-text">CSV'den Geri Yükle</span>
+    </button>
+  </div>
+
+  <div class="sheet-actions">
+    <button class="btn ghost" id="backupCloseBtn">Kapat</button>
   </div>
 </div>
 
@@ -614,7 +688,7 @@
   <h2>Yeni Uyarı Kaydı</h2>
   <div class="field">
     <label>Not</label>
-    <input id="logNot" type="text" placeholder="Örn: Yine yanlış yere park etmiş">
+    <input id="logNot" type="text" placeholder="Örn: Yine sokağa park etmiş">
   </div>
   <div class="field">
     <label>Konum</label>
@@ -1131,11 +1205,11 @@ function csvEscape(v){
 }
 
 function buildCSV(){
-  const rows = [['Plaka','Ad Soyad','Telefon','Etiket','Not']];
+  const rows = [['Plaka','Ad Soyad','Telefon','Etiket','Not','Uyarı Sayısı']];
   records
     .slice()
     .sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0))
-    .forEach(r => rows.push([r.plaka||'', r.ad||'', r.tel||'', r.etiket||'', r.not||'']));
+    .forEach(r => rows.push([r.plaka||'', r.ad||'', r.tel||'', r.etiket||'', r.not||'', (r.gecmis||[]).length]));
   const body = rows.map(row => row.map(csvEscape).join(';')).join('\r\n');
   return '\uFEFF' + body; 
 }
@@ -1193,8 +1267,7 @@ async function shareCSV(){
   }
 }
 
-document.getElementById('downloadBtn').addEventListener('click', downloadCSV);
-document.getElementById('shareBtn').addEventListener('click', shareCSV);
+
 
 function parseCSV(text){
   if(text.charCodeAt(0) === 0xFEFF) text = text.slice(1); 
@@ -1267,10 +1340,195 @@ async function handleRestoreFile(e){
   }
 }
 
-document.getElementById('restoreBtn').addEventListener('click', ()=>{
+
+
+// ============ YEDEKLEME MENÜSÜ ============
+
+const backupSheet = document.getElementById('backupSheet');
+const backupBackdrop = document.getElementById('backupBackdrop');
+
+function openBackupSheet(){
+  backupBackdrop.classList.add('open');
+  backupSheet.classList.add('open');
+}
+function closeBackupSheet(){
+  backupBackdrop.classList.remove('open');
+  backupSheet.classList.remove('open');
+}
+document.getElementById('backupMenuBtn').addEventListener('click', openBackupSheet);
+document.getElementById('backupCloseBtn').addEventListener('click', closeBackupSheet);
+backupBackdrop.addEventListener('click', closeBackupSheet);
+
+// CSV işlemleri (menüden tetiklenir)
+document.getElementById('csvDownloadBtn').addEventListener('click', ()=>{ downloadCSV(); closeBackupSheet(); });
+document.getElementById('csvShareBtn').addEventListener('click', ()=>{ shareCSV(); closeBackupSheet(); });
+document.getElementById('csvRestoreBtn').addEventListener('click', ()=>{
+  closeBackupSheet();
   document.getElementById('restoreInput').click();
 });
 document.getElementById('restoreInput').addEventListener('change', handleRestoreFile);
+
+// ---- Tam Yedek (JSON) — kayıtlar + uyarı geçmişi + fotoğraflar ----
+
+function blobToDataURL(blob){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=> resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function buildFullBackupObject(){
+  const exportedRecords = [];
+  for(const r of records){
+    const copy = JSON.parse(JSON.stringify(r));
+    if(Array.isArray(copy.gecmis)){
+      for(const h of copy.gecmis){
+        if(h.fotoId){
+          try{
+            const blob = await dbGetPhoto(h.fotoId);
+            if(blob){
+              h.fotoData = await blobToDataURL(blob);
+            }
+          }catch(e){ /* fotoğraf okunamazsa atla */ }
+          delete h.fotoId;
+        }
+      }
+    }
+    exportedRecords.push(copy);
+  }
+  return {
+    tip: 'kavak-arac-sorgu-tam-yedek',
+    surum: 1,
+    olusturulmaTarihi: Date.now(),
+    kayitSayisi: exportedRecords.length,
+    records: exportedRecords
+  };
+}
+
+function jsonFileName(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return `arac-tam-yedek-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}.json`;
+}
+
+async function downloadJSONBackup(){
+  if(records.length === 0){ showToast('İndirilecek kayıt yok'); return; }
+  showToast('Yedek hazırlanıyor...');
+  try{
+    const data = await buildFullBackupObject();
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = jsonFileName();
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+    showToast('Tam yedek indirildi');
+  }catch(e){
+    showToast('Yedek oluşturulurken bir sorun oluştu');
+  }
+}
+
+async function shareJSONBackup(){
+  if(records.length === 0){ showToast('Paylaşılacak kayıt yok'); return; }
+  showToast('Yedek hazırlanıyor...');
+  try{
+    const data = await buildFullBackupObject();
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const file = new File([blob], jsonFileName(), { type: 'application/json' });
+
+    if(navigator.canShare && navigator.canShare({ files: [file] })){
+      await navigator.share({
+        files: [file],
+        title: 'Kavak Belediyesi Araç Sorgu - Tam Yedek',
+        text: `${data.kayitSayisi} kayıt (fotoğraf ve geçmiş dahil) — Kavak Belediyesi`
+      });
+    }else if(navigator.share){
+      await navigator.share({
+        title: 'Kavak Belediyesi Araç Sorgu - Tam Yedek',
+        text: 'Bu cihazda dosya paylaşımı desteklenmiyor, lütfen indirip gönderin.'
+      });
+    }else{
+      showToast('Bu tarayıcı paylaşımı desteklemiyor, dosya indiriliyor');
+      await downloadJSONBackup();
+    }
+  }catch(e){
+    // Kullanıcı paylaşım penceresini iptal etmiş olabilir, sessiz geç
+  }
+}
+
+async function handleRestoreJSONFile(e){
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+
+  try{
+    const text = await file.text();
+    const data = JSON.parse(text);
+    const importRecords = Array.isArray(data.records) ? data.records : (Array.isArray(data) ? data : null);
+    if(!importRecords || importRecords.length === 0){
+      showToast('Dosyada kayıt bulunamadı');
+      return;
+    }
+
+    showToast('İçe aktarılıyor...');
+    const existingKeys = new Set(records.map(r => dedupeKey(r.plaka, r.tel)));
+    let added = 0;
+
+    for(const src of importRecords){
+      const key = dedupeKey(src.plaka, src.tel);
+      if((!src.plaka && !src.ad && !src.tel) || existingKeys.has(key)) continue;
+      existingKeys.add(key);
+
+      const newRecord = {
+        id: 'k' + Date.now() + Math.random().toString(36).slice(2,7) + added,
+        plaka: (src.plaka || '').trim(),
+        ad: (src.ad || '').trim(),
+        tel: (src.tel || '').trim(),
+        etiket: (src.etiket || '').trim(),
+        not: (src.not || '').trim(),
+        updatedAt: src.updatedAt || Date.now(),
+        gecmis: []
+      };
+
+      if(Array.isArray(src.gecmis)){
+        for(const h of src.gecmis){
+          const entry = { id: 'g' + Date.now() + Math.random().toString(36).slice(2,7), tarih: h.tarih || Date.now() };
+          if(h.not) entry.not = h.not;
+          if(h.lat != null && h.lng != null){ entry.lat = h.lat; entry.lng = h.lng; }
+          if(h.fotoData){
+            try{
+              const blob = await (await fetch(h.fotoData)).blob();
+              entry.fotoId = entry.id;
+              await dbPutPhoto(entry.fotoId, blob);
+            }catch(err){ /* fotoğraf çözülemezse notsuz devam et */ }
+          }
+          newRecord.gecmis.push(entry);
+        }
+      }
+
+      await dbPut(newRecord);
+      added++;
+    }
+
+    await loadRecords();
+    showToast(added > 0 ? `${added} kayıt (fotoğraflar dahil) geri yüklendi` : 'Yeni kayıt yok, hepsi zaten mevcut');
+  }catch(err){
+    showToast('Dosya okunamadı, formatı kontrol edin');
+  }
+}
+
+document.getElementById('jsonDownloadBtn').addEventListener('click', ()=>{ downloadJSONBackup(); closeBackupSheet(); });
+document.getElementById('jsonShareBtn').addEventListener('click', ()=>{ shareJSONBackup(); closeBackupSheet(); });
+document.getElementById('jsonRestoreBtn').addEventListener('click', ()=>{
+  closeBackupSheet();
+  document.getElementById('jsonRestoreInput').click();
+});
+document.getElementById('jsonRestoreInput').addEventListener('change', handleRestoreJSONFile);
 
 // ============ UYARI GEÇMİŞİ (LOG) - KONUM & FOTOĞRAF ============
 

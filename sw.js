@@ -1,10 +1,11 @@
 // Kavak Belediyesi Araç Sorgu Sistemi - Service Worker
 // Sürüm numarasını her önemli güncellemede artır (cache'i tazelemek için)
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v3';
 const CACHE_NAME = 'arac-sorgu-' + CACHE_VERSION;
 
 const CORE_ASSETS = [
-  './Araç_Sorgu_Sistemi.html',
+  './',
+  './index.html',
   './manifest.json',
   './res/kavak-logo.png'
 ];

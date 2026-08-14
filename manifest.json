@@ -2,7 +2,7 @@
   "name": "Kavak Belediyesi Araç Sorgu Sistemi",
   "short_name": "Araç Sorgu",
   "description": "Kavak Belediyesi Zabıta Araç Uyarı Takip Sistemi",
-  "start_url": "./Araç_Sorgu_Sistemi.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
