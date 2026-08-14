@@ -1,7 +1,7 @@
 {
   "name": "Kavak Belediyesi Araç Sorgu Sistemi",
   "short_name": "Kavak Belediyesi Araç Sorgu Sistemi",
-  "description": "Kavak Belediyesi Zabıta Araç Uyarı Takip Sistemi",
+  "description": "Kavak Belediyesi Zabıta Araç Uyarı Takip Sistemi BekirSevnc tarafından oluşturulmuştur.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
